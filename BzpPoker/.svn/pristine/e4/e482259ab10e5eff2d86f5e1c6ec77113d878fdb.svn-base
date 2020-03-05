@@ -1,0 +1,117 @@
+//
+//  GameViewController.m
+//  Poker
+//
+//  Created by DengZw on 16/8/1.
+//  Copyright © 2016年 ALonelyEgg.com. All rights reserved.
+//
+
+#import "GameViewController.h"
+
+#import "PokerSever.h"
+#import "PokerManager.h"
+#import "RoleModel.h"
+
+#import "ZwCardView.h"
+#import "ZwHandsCardView.h"
+
+#import "BigCardType.h"
+
+#import "ZwMenuView.h"
+#import "GameUserView.h"
+
+
+@interface GameViewController ()<ZwMenuViewDelegate>
+{
+//    ZwHandsCardView *cardsView;
+}
+
+@end
+
+@implementation GameViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self createUIView];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)createUIView
+{
+    [self createMenuButtonsView];
+    [self createUserInfoView];
+    [self createHandsCardView];
+}
+
+- (void)createMenuButtonsView
+{
+    ZwMenuView *menuView = [[ZwMenuView alloc] initWithPoint:CGPointMake(self.view.bounds.size.width - 10, 10) delegate:self];
+    [self.view addSubview:menuView];
+}
+
+- (void)createUserInfoView
+{
+    // 对面玩家
+    CGFloat u1X = self.view.bounds.size.width / 2 - 22;
+    GameUserView *u1View = [[GameUserView alloc] initWithPoint:CGPointMake(u1X, 2) parentVc:self];
+    [self.view addSubview:u1View];
+    
+    // 左边玩家
+    
+    // 右边玩家
+    
+    // 玩家自己
+    CGFloat uSelfY = self.view.bounds.size.height - 62 - 4.5;
+    GameUserView *uSelfView = [[GameUserView alloc] initWithPoint:CGPointMake(4.5, uSelfY) parentVc:self];
+    [self.view addSubview:uSelfView];
+}
+
+- (void)createHandsCardView
+{
+    // 牌
+    RoleModel *role = [[RoleModel alloc] init];
+    [[PokerSever shareSever] linkToSeverByPlayer:role];
+    [[PokerSever shareSever] linkToSeverByPlayer:role];
+    [[PokerSever shareSever] linkToSeverByPlayer:role];
+    [[PokerSever shareSever] linkToSeverByPlayer:role];
+
+    PlayerModel *model = [[PokerSever shareSever] aModel];
+    
+    ZwHandsCardView *cardsView = [[ZwHandsCardView alloc] initWithFrame:CGRectMake(60, self.view.bounds.size.height - 173/2 - 20, self.view.bounds.size.width - 120 - 130/2, kCardViewSizeHeight + kCardViewPreDiscardHeight) cards:model.cardsInHandArray];
+    cardsView.backgroundColor = [UIColor lightGrayColor];
+    [self.view addSubview:cardsView];
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+- (void)zwMenuViewSelectedIndex:(NSInteger)index
+{
+    NSLog(@"%ld", index);
+    switch (index)
+    {
+        case 0:
+            [self dismissViewControllerAnimated:YES completion:nil];
+            break;
+            
+        default:
+            break;
+    }
+}
+
+@end

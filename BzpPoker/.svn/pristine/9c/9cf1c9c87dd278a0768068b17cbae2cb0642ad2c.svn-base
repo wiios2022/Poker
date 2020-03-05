@@ -1,0 +1,96 @@
+//
+//  ZwDeskCardsView.m
+//  BzpPoker
+//
+//  Created by DengZw on 16/9/8.
+//  Copyright © 2016年 ALonelyEgg.com. All rights reserved.
+//
+
+#import "ZwDeskCardsView.h"
+#import "ZwCardView.h"
+
+@interface ZwDeskCardsView ()
+
+@property (nonatomic, strong) NSMutableArray *cardsArray; /**< 出手的牌 */
+
+@end
+
+@implementation ZwDeskCardsView
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame])
+    {
+        // 发牌
+        [self createUIView];
+        self.cardsArray = [[NSMutableArray alloc] init];
+    }
+    
+    return self;
+}
+
+- (void)createUIView
+{
+    // 创建时，先移除旧的视图
+    if (self.subviews)
+    {
+        for (UIView *view in self.subviews)
+        {
+            [view removeFromSuperview];
+        }
+    }
+    
+    CGFloat totoalWidth = kDeskCardViewSizeWidth;
+    
+    for(int x = 0; x < self.cardsArray.count; x ++)
+    {
+        NSArray *array = self.cardsArray[x];
+        
+        // 每手牌的宽度
+        CGFloat oneCardsWidth = kDeskCardViewSpaceWidth * (array.count - 1);
+        totoalWidth += oneCardsWidth;
+        
+        if (x != self.cardsArray.count - 1)
+        {
+            // 添加每手牌之间的距离
+            totoalWidth += kDeskCardsViewSpaceWidth;
+        }
+    }
+    
+    CGFloat orignX = (self.bounds.size.width - totoalWidth)/2;
+    for (int x = 0; x < self.cardsArray.count; x ++)
+    {
+        NSArray *array = self.cardsArray[x];
+
+        for (int y = 0; y < array.count; y ++)
+        {
+            CardModel *model = array[y];
+            ZwCardView *card = [[ZwCardView alloc] initWithFrame:CGRectMake(orignX, 0, kDeskCardViewSizeWidth, kDeskCardViewSizeHeight) cardModel:model];
+            [self addSubview:card];
+            
+            if (y != array.count - 1)
+            {
+                // 每张牌之间的距离
+                orignX += kDeskCardViewSpaceWidth;
+            }
+        }
+        
+        // 添加每手牌之间的距离
+        orignX += kDeskCardsViewSpaceWidth;
+    }
+    
+}
+
+- (void)addCards:(NSArray *)cards
+{
+    [self.cardsArray addObject:cards];
+    [self createUIView];
+}
+
+- (void)finishedOneRound
+{
+    [self.cardsArray removeAllObjects];
+    [self createUIView];
+}
+
+@end

@@ -1,0 +1,189 @@
+//
+//  ZwHandsCardView.m
+//  Poker
+//
+//  Created by DengZw on 16/7/22.
+//  Copyright © 2016年 ALonelyEgg.com. All rights reserved.
+//
+
+#import "ZwHandsCardView.h"
+
+#import "CheckCardType.h"
+
+#define kTwoCardsSpaceWidth 30.0f
+
+@interface ZwHandsCardView ()
+{
+    CGFloat x1;     // 手势的开始位置
+    UIView *tmpView;    // 用来处理手势
+}
+
+@property (nonatomic, strong) NSMutableArray *cardsArray; /**< 手牌数组 */
+
+@end
+
+@implementation ZwHandsCardView
+
+- (instancetype)initWithFrame:(CGRect)frame cards:(NSArray *)cards
+{
+    if (self = [super initWithFrame:frame])
+    {
+        //
+        self.cardsArray = [[NSMutableArray alloc] initWithArray:cards];
+        [self createUIView];
+    }
+    
+    return self;
+}
+
+
+- (void)setCards:(NSArray *)cards
+{
+    self.cardsArray = [[NSMutableArray alloc] initWithArray:cards];
+    [self createUIView];
+}
+
+- (void)createUIView
+{
+    // 创建时，先移除旧的视图
+    if (self.subviews)
+    {
+        for (UIView *view in self.subviews)
+        {
+            [view removeFromSuperview];
+        }
+    }
+    
+    for(int x = 0; x < self.cardsArray.count; x ++)
+    {
+        CardModel *model = self.cardsArray[x];
+        ZwCardView *card = [[ZwCardView alloc] initWithFrame:CGRectMake(x * kTwoCardsSpaceWidth, 20, 130/2, 170/2) cardModel:model];
+        [self addSubview:card];
+    }
+    
+    // 用来处理手势的空view
+    tmpView = [[UIView alloc] initWithFrame:self.bounds];
+    [self addSubview:tmpView];
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGestureAction:)];
+    [tmpView addGestureRecognizer:tapGesture];
+}
+
+- (void)tapGestureAction:(UITapGestureRecognizer *)tap
+{
+    CGPoint point = [tap locationInView:tmpView];
+    CGFloat gesX = point.x;
+    
+    for (ZwCardView *card in self.subviews)
+    {
+        if ([card isKindOfClass:[ZwCardView class]])
+        {
+            CGFloat x = card.frame.origin.x;
+            if ((gesX >= x) && gesX <= x + kTwoCardsSpaceWidth)
+            {
+                card.isPreDiscard = !card.isPreDiscard;
+            }
+        }
+    }
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event
+{
+    // begin
+}
+
+-(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch = [touches anyObject];
+    CGPoint point = [touch locationInView:tmpView];
+    CGFloat gesX = point.x;
+    
+    for (ZwCardView *card in self.subviews)
+    {
+        if ([card isKindOfClass:[ZwCardView class]])
+        {
+            CGFloat x = card.frame.origin.x;
+            if ((gesX >= x) && gesX <= x + kTwoCardsSpaceWidth)
+            {
+                // 如果滑动结束
+                if (card.isSlideEnded)
+                {
+                    // 改变选中状态
+                    card.isShowTranslucentView = YES;
+                }
+
+                // 设置滑动未完成，避免重复设置，导致错误
+                card.isSlideEnded = NO;
+            }
+        }
+    }
+}
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event
+{
+    [self resetCardViews];
+}
+
+- (void)resetCardViews
+{
+    [UIView animateWithDuration:0.3 animations:^{
+        for (ZwCardView *card in self.subviews)
+        {
+            if ([card isKindOfClass:[ZwCardView class]])
+            {
+                if (card.isShowTranslucentView)
+                {
+                    // 如果是选中状态，则改变预出牌状态
+                    card.isPreDiscard = !card.isPreDiscard;
+                }
+                
+                // 设置滑动完成
+                card.isSlideEnded = YES;
+                
+                // 完成后把蒙版隐藏
+                card.isShowTranslucentView = NO;
+            }
+        }
+    }];
+}
+
+// 出牌
+- (void)discard
+{
+    NSMutableArray *tmpViewArray = [[NSMutableArray alloc] init];
+    NSMutableArray *tmpModelArray = [[NSMutableArray alloc] init];
+    
+    for (ZwCardView *cardView in self.subviews)
+    {
+        if ([cardView isKindOfClass:[ZwCardView class]])
+        {
+            if (cardView.isPreDiscard)
+            {
+                [tmpViewArray addObject:cardView];
+                [tmpModelArray addObject:cardView.cardModel];
+            }
+        }
+    }
+    
+    if ([CheckCardType gotTypeByCards:tmpModelArray] >= 0)
+    {
+        // 如果是正确的牌型，执行出牌动画 -> 出牌
+        
+        [UIView animateWithDuration:0.35 animations:^{
+            for (ZwCardView *cardView in tmpViewArray)
+            {
+                [self.cardsArray removeObject:cardView.cardModel];
+                [cardView removeFromSuperview];
+            }
+        } completion:^(BOOL finished) {
+            if (finished)
+            {
+                [self createUIView];
+            }
+        }];
+    }
+    
+    
+}
+
+@end

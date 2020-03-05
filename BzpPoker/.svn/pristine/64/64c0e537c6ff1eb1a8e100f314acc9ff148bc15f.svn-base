@@ -1,0 +1,298 @@
+//
+//  GameViewController.m
+//  Poker
+//
+//  Created by DengZw on 16/8/1.
+//  Copyright © 2016年 ALonelyEgg.com. All rights reserved.
+//
+
+#import "GameViewController.h"
+
+#import "PokerSever.h"
+#import "PokerManager.h"
+#import "RoleModel.h"
+
+#import "ZwCardView.h"
+#import "ZwHandCardsView.h"
+#import "ZwDeskCardsView.h"
+
+#import "BigCardType.h"
+
+#import "ZwMenuView.h"
+#import "GameUserView.h"
+
+
+@interface GameViewController ()<ZwMenuViewDelegate>
+{
+    ZwHandCardsView *handCardsView;     // 手牌
+    ZwDeskCardsView *deskCardsView;
+    
+    UIView *preView;                // 准备界面
+    UIView *groupSelfView;          // 包牌界面
+    UIView *groupOtherView;         // 分队界面
+    UIView *playView;               // 玩牌界面
+}
+
+@end
+
+@implementation GameViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self createUIView];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)createUIView
+{
+    [UIView animateWithDuration:kHandCardsViewDiscardAnimationTime animations:^{
+        
+        [self createMenuButtonsView];
+        [self createUserInfoView];
+        [self createButtonsView];
+        
+    }];
+}
+
+- (void)createMenuButtonsView
+{
+    ZwMenuView *menuView = [[ZwMenuView alloc] initWithPoint:CGPointMake(self.view.bounds.size.width - 10, 10) delegate:self];
+    [self.view addSubview:menuView];
+}
+
+- (void)createUserInfoView
+{
+    // 对面玩家
+    CGFloat u1X = self.view.bounds.size.width / 2 - 22;
+    GameUserView *u1View = [[GameUserView alloc] initWithPoint:CGPointMake(u1X, 2) parentVc:self];
+    [self.view addSubview:u1View];
+    
+    // 左边玩家
+    
+    // 右边玩家
+    
+    // 玩家自己
+    CGFloat uSelfY = self.view.bounds.size.height - 62 - 4.5;
+    GameUserView *uSelfView = [[GameUserView alloc] initWithPoint:CGPointMake(4.5, uSelfY) parentVc:self];
+    [self.view addSubview:uSelfView];
+}
+
+- (void)createHandCardsView
+{
+    // 牌
+    RoleModel *role = [[RoleModel alloc] init];
+    [[PokerSever shareSever] linkToSeverByPlayer:role];
+    [[PokerSever shareSever] linkToSeverByPlayer:role];
+    [[PokerSever shareSever] linkToSeverByPlayer:role];
+    [[PokerSever shareSever] linkToSeverByPlayer:role];
+
+    PlayerModel *model = [[PokerSever shareSever] aModel];
+    
+    // 长度
+    CGFloat cardsViewWidth = kCardViewSizeWidth + kCardViewSpaceWidth * 12;
+    CGFloat cardsViewHeight = kCardViewSizeHeight + kCardViewPreDiscardHeight;
+    
+    handCardsView = [[ZwHandCardsView alloc] initWithFrame:CGRectMake((self.view.bounds.size.width - cardsViewWidth)/2, self.view.bounds.size.height - cardsViewHeight, cardsViewWidth, cardsViewHeight) cards:model.cardsInHandArray];
+    
+    handCardsView.backgroundColor = [UIColor lightGrayColor];
+    [self.view addSubview:handCardsView];
+    
+}
+
+- (void)createDeskCardsView
+{
+    // 长度
+    CGFloat cardsViewWidth = kDeskCardViewSizeWidth + kDeskCardViewSpaceWidth * 13;
+    CGFloat cardsViewHeight = kDeskCardViewSizeHeight;
+    
+    CGFloat orignY = playView.frame.origin.y + playView.frame.size.height - cardsViewHeight;
+    
+    deskCardsView = [[ZwDeskCardsView alloc] initWithFrame:CGRectMake((self.view.bounds.size.width - cardsViewWidth)/2, orignY, cardsViewWidth, cardsViewHeight)];
+    
+    deskCardsView.backgroundColor = [UIColor lightGrayColor];
+    [self.view insertSubview:deskCardsView aboveSubview:self.bzpBgImgView];
+}
+
+- (void)createButtonsView
+{
+    // 34 * 106
+    CGFloat btnWidth = 106;
+    CGFloat btnHeight = 34;
+    CGFloat btnSpace = 4;
+    
+    CGFloat btnViewWidth = btnWidth * 2 + btnSpace;
+    CGFloat btnViewHeight = btnHeight;
+    CGFloat btnViewOrignY = self.view.bounds.size.height - (kCardViewSizeHeight + kCardViewPreDiscardHeight + 4 + btnViewHeight);
+    
+    preView = [[UIView alloc] initWithFrame:CGRectMake((self.view.bounds.size.width - btnViewWidth)/2, btnViewOrignY, btnViewWidth, btnViewHeight)];
+    preView.backgroundColor = [UIColor lightGrayColor];
+    preView.alpha = 1;
+    
+    UIButton *btnChangeDesk = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnChangeDesk.frame = CGRectMake(0, 0, btnWidth, btnHeight);
+    [btnChangeDesk setBackgroundImage:[UIImage imageNamed:@"btn_game_left"] forState:UIControlStateNormal];
+    [btnChangeDesk setTitle:@"换桌" forState:UIControlStateNormal];
+    btnChangeDesk.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    btnChangeDesk.tintColor = [UIColor whiteColor];
+    [btnChangeDesk addTarget:self action:@selector(btnChangeDeskAction:) forControlEvents:UIControlEventTouchUpInside];
+    [preView addSubview:btnChangeDesk];
+    
+    UIButton *btnPrepare = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnPrepare.frame = CGRectMake(btnWidth + btnSpace, 0, btnWidth, btnHeight);
+    [btnPrepare setBackgroundImage:[UIImage imageNamed:@"btn_game_right"] forState:UIControlStateNormal];
+    [btnPrepare setTitle:@"准备" forState:UIControlStateNormal];
+    btnPrepare.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    btnPrepare.tintColor = [UIColor whiteColor];
+    [btnPrepare addTarget:self action:@selector(btnPrepareAction:) forControlEvents:UIControlEventTouchUpInside];
+    [preView addSubview:btnPrepare];
+
+    [self.view addSubview:preView];
+    
+    groupSelfView = [[UIView alloc] initWithFrame:preView.frame];
+    groupSelfView.backgroundColor = [UIColor lightGrayColor];
+    groupSelfView.alpha = 0;
+    
+    UIButton *btnAlone = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnAlone.frame = btnChangeDesk.frame;
+    [btnAlone setBackgroundImage:[UIImage imageNamed:@"btn_game_left"] forState:UIControlStateNormal];
+    [btnAlone setTitle:@"包牌" forState:UIControlStateNormal];
+    btnAlone.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    btnAlone.tintColor = [UIColor whiteColor];
+    [btnAlone addTarget:self action:@selector(btnAloneAction:) forControlEvents:UIControlEventTouchUpInside];
+    [groupSelfView addSubview:btnAlone];
+    
+    UIButton *btnNoAlone = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnNoAlone.frame = btnPrepare.frame;
+    [btnNoAlone setBackgroundImage:[UIImage imageNamed:@"btn_game_right"] forState:UIControlStateNormal];
+    [btnNoAlone setTitle:@"不包牌" forState:UIControlStateNormal];
+    btnNoAlone.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    btnNoAlone.tintColor = [UIColor whiteColor];
+    [btnNoAlone addTarget:self action:@selector(btnNoAloneAction:) forControlEvents:UIControlEventTouchUpInside];
+    [groupSelfView addSubview:btnNoAlone];
+    
+    [self.view addSubview:groupSelfView];
+    
+    playView = [[UIView alloc] initWithFrame:preView.frame];
+    playView.backgroundColor = [UIColor lightGrayColor];
+    playView.alpha = 0;
+    
+    UIButton *btnPass = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnPass.frame = btnChangeDesk.frame;
+    [btnPass setBackgroundImage:[UIImage imageNamed:@"btn_game_left"] forState:UIControlStateNormal];
+    [btnPass setTitle:@"过牌" forState:UIControlStateNormal];
+    btnPass.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    btnPass.tintColor = [UIColor whiteColor];
+    [btnPass addTarget:self action:@selector(btnPassAction:) forControlEvents:UIControlEventTouchUpInside];
+    [playView addSubview:btnPass];
+    
+    UIButton *btnDiscard = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnDiscard.frame = btnPrepare.frame;
+    [btnDiscard setBackgroundImage:[UIImage imageNamed:@"btn_game_right"] forState:UIControlStateNormal];
+    [btnDiscard setTitle:@"出牌" forState:UIControlStateNormal];
+    btnDiscard.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    btnDiscard.tintColor = [UIColor whiteColor];
+    [btnDiscard addTarget:self action:@selector(btnDiscardAction:) forControlEvents:UIControlEventTouchUpInside];
+    [playView addSubview:btnDiscard];
+    
+    [self.view addSubview:playView];
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+#pragma mark - UIButton Action
+#pragma mark -
+
+// 换桌
+- (void)btnChangeDeskAction:(UIButton *)btn
+{
+//    [self createUIView];
+}
+
+- (void)btnPrepareAction:(UIButton *)btn
+{
+    [UIView animateWithDuration:kHandCardsViewDiscardAnimationTime animations:^{
+        [self createHandCardsView];
+        [self createDeskCardsView];
+        preView.alpha = 0;
+        groupSelfView.alpha = 1;
+    }completion:^(BOOL finished) {
+        [preView removeFromSuperview];
+    }];
+}
+
+- (void)btnAloneAction:(UIButton *)btn
+{
+    [UIView animateWithDuration:kHandCardsViewDiscardAnimationTime animations:^{
+        groupSelfView.alpha = 0;
+        playView.alpha = 1;
+    }completion:^(BOOL finished) {
+        [groupSelfView removeFromSuperview];
+    }];
+}
+
+- (void)btnNoAloneAction:(UIButton *)btn
+{
+    [UIView animateWithDuration:kHandCardsViewDiscardAnimationTime animations:^{
+        groupSelfView.alpha = 0;
+        playView.alpha = 1;
+    }completion:^(BOOL finished) {
+        [groupSelfView removeFromSuperview];
+    }];
+}
+
+- (void)btnPassAction:(UIButton *)btn
+{
+    [handCardsView pass];
+    [deskCardsView finishedOneRound];
+}
+
+- (void)btnDiscardAction:(UIButton *)btn
+{
+    [handCardsView discardByBlock:^(NSMutableArray *cardsArray) {
+        [deskCardsView addCards:cardsArray];
+    }];
+    
+    if (!handCardsView.cardsArray.count)
+    {
+        [UIView animateWithDuration:kHandCardsViewDiscardAnimationTime animations:^{
+            playView.alpha = 0;
+        }completion:^(BOOL finished) {
+            [playView removeFromSuperview];
+        }];
+    }
+}
+
+#pragma mark - ZwMenuView Delegate
+#pragma mark -
+
+- (void)zwMenuViewSelectedIndex:(NSInteger)index
+{
+    NSLog(@"%ld", index);
+    switch (index)
+    {
+        case 0:
+            [self dismissViewControllerAnimated:YES completion:nil];
+            break;
+            
+        default:
+            break;
+    }
+}
+
+@end

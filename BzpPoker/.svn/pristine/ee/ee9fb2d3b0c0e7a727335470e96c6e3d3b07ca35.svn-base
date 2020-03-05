@@ -1,0 +1,98 @@
+//
+//  RoomsViewController.m
+//  Poker
+//
+//  Created by DengZw on 16/8/1.
+//  Copyright © 2016年 ALonelyEgg.com. All rights reserved.
+//
+
+#import "RoomsViewController.h"
+
+@interface RoomsViewController ()
+
+@end
+
+@implementation RoomsViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    [self createUIView];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+- (void)createUIView
+{
+    CGFloat allWidth = self.view.frame.size.width;
+    CGFloat allHeight = self.view.frame.size.height;
+    
+    // 计算房间按钮之间的间隙
+    CGFloat btnRoomSpace = (allWidth - 122.0f * 4)/5.0f;
+    
+    // 52 * 52
+    UIView *userView = [[UIView alloc] initWithFrame:CGRectMake(btnRoomSpace, 26, allWidth - btnRoomSpace, 52)];
+    userView.backgroundColor = [UIColor lightGrayColor];
+    [self.view addSubview:userView];
+    
+    UIButton *btnUser = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnUser.frame = CGRectMake(0, 0, 52, 52);
+    [btnUser setBackgroundImage:[UIImage imageNamed:@"img_room_userhead"] forState:UIControlStateNormal];
+    [userView addSubview:btnUser];
+    
+    UILabel *lblName = [[UILabel alloc] initWithFrame:CGRectMake(52 + 9, 5, 200, 12)];
+    lblName.font = [UIFont systemFontOfSize:12];
+    lblName.textColor = [UIColor yellowColor];
+    lblName.text = @"拼命鬼丶不拼命";
+    [userView addSubview:lblName];
+    
+    UIButton *btnSetting = [UIButton buttonWithType:UIButtonTypeCustom];
+    btnSetting.frame = CGRectMake(userView.bounds.size.width - 84 - btnRoomSpace, (52 - 29)/2, 84, 29);
+    [btnSetting setBackgroundImage:[UIImage imageNamed:@"btn_room_setting"] forState:UIControlStateNormal];
+    [userView addSubview:btnSetting];
+    
+    // 122 * 146
+    UIView *roomView = [[UIView alloc] initWithFrame:CGRectMake(0, userView.frame.size.height + userView.frame.origin.y + 29, allWidth, 146)];
+    roomView.backgroundColor = [UIColor grayColor];
+    [self.view addSubview:roomView];
+    
+    for (int x = 0; x < 4; x ++)
+    {
+        UIView *bgView = [[UIView alloc] initWithFrame:CGRectMake((122 + btnRoomSpace) * x + btnRoomSpace, 0, 122, 146)];
+        [roomView addSubview:bgView];
+        
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = bgView.bounds;
+        [btn setBackgroundImage:[UIImage imageNamed:@"bg_room_2"] forState:UIControlStateNormal];
+        btn.tag = x;
+        [bgView addSubview:btn];
+        
+        UILabel *lblRoom = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, 122, 15)];
+        lblRoom.text = @"初级房";
+        lblRoom.textAlignment = NSTextAlignmentCenter;
+        lblRoom.textColor = [UIColor blackColor];
+        lblRoom.font = [UIFont boldSystemFontOfSize:15];
+        [bgView addSubview:lblRoom];
+    }
+    
+}
+
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

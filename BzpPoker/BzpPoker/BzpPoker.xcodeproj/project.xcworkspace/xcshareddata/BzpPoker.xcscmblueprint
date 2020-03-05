@@ -1,0 +1,25 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "5fa06312-72ac-427d-8de9-bdc74ffd63dd",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "5fa06312-72ac-427d-8de9-bdc74ffd63dd" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "5fa06312-72ac-427d-8de9-bdc74ffd63dd" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "D4AEACFB-8279-4A4C-A404-FA135368BE92",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "5fa06312-72ac-427d-8de9-bdc74ffd63dd" : "BzpPoker\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "BzpPoker",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "BzpPoker\/BzpPoker.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "svn:\/\/wiios%40qq.com@git.oschina.net\/dengerge\/BzpPoker",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "5fa06312-72ac-427d-8de9-bdc74ffd63dd"
+    }
+  ]
+}

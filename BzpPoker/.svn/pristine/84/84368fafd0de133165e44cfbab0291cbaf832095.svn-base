@@ -1,0 +1,15 @@
+//
+//  GameUserView.h
+//  BzpPoker
+//
+//  Created by DengZw on 16/9/2.
+//  Copyright © 2016年 ALonelyEgg.com. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface GameUserView : UIView
+
+- (instancetype)initWithPoint:(CGPoint)point parentVc:(UIViewController *)parentVc;
+
+@end

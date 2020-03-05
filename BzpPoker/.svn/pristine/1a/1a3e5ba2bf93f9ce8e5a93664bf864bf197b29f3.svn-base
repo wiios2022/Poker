@@ -1,0 +1,37 @@
+//
+//  ZwHandsCardView.h
+//  Poker
+//
+//  Created by DengZw on 16/7/22.
+//  Copyright © 2016年 ALonelyEgg.com. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+#import "ZwCardView.h"
+
+#define kHandsCardViewDiscardAnimationTime 0.35f
+
+#define kCardViewSizeHeight 62.0f
+#define kCardViewSpaceWidth 20.0f
+#define kCardViewSizeWidth 47.0f
+
+@interface ZwHandsCardView : UIView
+
+@property (nonatomic, strong) NSMutableArray *cardsArray; /**< 手牌数组 */
+
+- (instancetype)initWithFrame:(CGRect)frame cards:(NSArray *)cards;
+
+// 设置手牌
+- (void)setCards:(NSArray *)cards;
+
+// 出牌
+- (void)discard;
+
+// 过牌
+- (void)pass;
+
+// 发牌动画
+//- (void)distributeCards;
+
+@end

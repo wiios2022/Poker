@@ -1,0 +1,35 @@
+//
+//  ZwDeskCardsView.h
+//  BzpPoker
+//
+//  Created by DengZw on 16/9/8.
+//  Copyright © 2016年 ALonelyEgg.com. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+#define kDeskCardViewSizeHeight 43.0f   // 牌高
+#define kDeskCardViewSizeWidth 32.0f    // 牌宽
+
+#define kDeskCardViewSpaceWidth 12.0f   // 单张牌之间的距离
+#define kDeskCardsViewSpaceWidth 20.0f  // 两手牌之间的距离
+
+typedef enum : NSUInteger {
+    ZwDeskCardsViewAlignmentLeft,
+    ZwDeskCardsViewAlignmentCenter,
+    ZwDeskCardsViewAlignmentRight
+} ZwDeskCardsViewAlignment;
+
+@interface ZwDeskCardsView : UIView
+
+@property (nonatomic, strong) NSMutableArray *cardsArray; /**< 出手的牌 */
+
+- (instancetype)initWithFrame:(CGRect)frame alignment:(ZwDeskCardsViewAlignment)alignment;
+
+- (void)addCards:(NSArray *)cards;
+
+- (void)discardFinished;
+
+- (void)finishedOneRound;
+
+@end
